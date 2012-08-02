@@ -71,8 +71,6 @@ class DonationData {
 		$this->normalized = array( );
 		if ( is_array( $external_data ) ){
 			$this->normalized = $external_data;
-		} elseif ( $test ) {
-			$this->populateData_Test();
 		} else {
 			$this->normalized = array(
 				'amount' => $this->getText( 'amount', null ),
@@ -213,89 +211,6 @@ class DonationData {
 	 */
 	public function getDataUnescaped() {
 		return $this->normalized;
-	}
-
-	/**
-	 * populateData helper function.
-	 * If there is no external data provided upon DonationData construct, and 
-	 * the object was instantiated in test mode, populateData_Test in intended 
-	 * to provide a baseline minimum of data with which to run tests without 
-	 * exploding. 
-	 * Populates $this->normalized. 
-	 * TODO: Implement an override for the test data, in the event that a 
-	 * partial data array is provided when DonationData is instantiated. 
-	 * @param array $testdata Intended to implement an override for any values 
-	 * that may be provided on instantiation. 
-	 */
-	protected function populateData_Test( $testdata = false ) {
-		// define arrays of cc's and cc #s for random selection
-		$cards = array( 'american' );
-		$card_nums = array(
-			'american' => array(
-				378282246310005
-			),
-		);
-
-		// randomly select a credit card
-		$card_index = array_rand( $cards );
-
-		// randomly select a credit card #
-		$card_num_index = array_rand( $card_nums[$cards[$card_index]] );
-
-		//This array should be populated with general test defaults, or 
-		//(preferably)  mappings to random stuff... if we keep this around at all.
-		//Certainly nothing pulled from a form post or get. 
-		$this->normalized = array(
-			'amount' => "35",
-			'amountOther' => '',
-			'email' => 'test@example.com',
-			'fname' => 'Tester',
-			'mname' => 'T.',
-			'lname' => 'Testington',
-			'street' => '548 Market St.',
-			'street_supplemental' => '3rd floor',
-			'city' => 'San Francisco',
-			'state' => 'CA',
-			'zip' => '94104',
-			'country' => 'US',
-			'fname2' => 'Testy',
-			'lname2' => 'Testerson',
-			'street2' => '123 Telegraph Ave.',
-			'city2' => 'Berkeley',
-			'state2' => 'CA',
-			'zip2' => '94703',
-			'country2' => 'US',
-			'size' => 'small',
-			'premium_language' => 'es',
-			'card_num' => $card_nums[$cards[$card_index]][$card_num_index],
-			'card_type' => $cards[$card_index],
-			'expiration' => date( 'my', strtotime( '+1 year 1 month' ) ),
-			'cvv' => '001',
-			'currency_code' => 'USD',
-			'payment_method' => 'cc',
-			'payment_submethod' => '', //cards have no payment submethods. 
-			'issuer_id' => '',
-			'order_id' => '1234567890',
-			'i_order_id' => '1234567890',
-			'numAttempt' => 0,
-			'referrer' => 'http://www.baz.test.com/index.php?action=foo&action=bar',
-			'utm_source' => 'test_src',
-			'utm_source_id' => null,
-			'utm_medium' => 'test_medium',
-			'utm_campaign' => 'test_campaign',
-			'language' => 'en',
-			'comment-option' => 0,
-			'comment' => 0,
-			'email-opt' => 0,
-			'token' => '',
-			'contribution_tracking_id' => '',
-			'data_hash' => '',
-			'action' => '',
-			'gateway' => 'payflowpro',
-			'owa_session' => '',
-			'owa_ref' => 'http://localhost/defaultTestData',
-			'user_ip' => '12.12.12.12',
-		);
 	}
 
 	/**
