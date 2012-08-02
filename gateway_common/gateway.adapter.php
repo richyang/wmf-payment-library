@@ -258,11 +258,6 @@ abstract class GatewayAdapter implements GatewayType {
 	 */
 	function setPostDefaults( $options = array() ) {
 
-		// Extract the options
-		if ( is_array( $options ) ) {
-			extract( $options );
-		}
-
 		$this->postdatadefaults = array(
 			'order_id' => '112358' . rand(),
 			'amount' => '11.38',
@@ -501,19 +496,16 @@ abstract class GatewayAdapter implements GatewayType {
 	 */
 	public function getErrorMap( $code = null, $options = array() ) {
 
-		if ( isset( $options['code'] ) ) {
-			unset( $options['code'] );
-		}
-		
-		extract( $options );
-
-		global $messages;
-		
 		if ( is_null( $code ) ) {
 			return $this->error_map;
 		}
+		
+		$defaults = array(
+			'translate' => false,
+		);
+		$options = array_merge($options, $defaults);
 
-		$translate = isset( $translate ) ? (boolean) $translate : false ;
+		$options['translate'] = (boolean) $options['translate'];
 		
 		$response_message = $this->getIdentifier() . '_gateway-response-' . $code;
 		
@@ -529,10 +521,10 @@ abstract class GatewayAdapter implements GatewayType {
 		// If the $code does not exist, use the default code: 0
 		$code = !isset( $this->error_map[ $code ] ) ? 0 : $code;
 		
-		$translatedMessage = ( $translate && empty( $translatedMessage ) ) ? WMF_Framework::format_message( $this->error_map[ $code ] ) : $translatedMessage; 
+		$translatedMessage = ( $options['translate'] && empty( $translatedMessage ) ) ? WMF_Framework::format_message( $this->error_map[ $code ] ) : $translatedMessage; 
 		
 		// Check to see if we return the translated message.
-		$message = ( $translate ) ? $translatedMessage : $this->error_map[ $code ];
+		$message = ( $options['translate'] ) ? $translatedMessage : $this->error_map[ $code ];
 		
 		return $message;
 	}

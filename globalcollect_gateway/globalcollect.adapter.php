@@ -1031,13 +1031,15 @@ class GlobalCollectAdapter extends GatewayAdapter {
 	 */
 	public function getPaymentSubmethodMeta( $payment_submethod, $options = array() ) {
 		
-		extract( $options );
-		
-		$log = isset( $log ) ? (boolean) $log : false ;
+		$defaults = array(
+			'log' => false,
+		);
+		$options = array_merge($options, $defaults);
+		$options['log'] = (boolean) $options['log'];
 		
 		if ( isset( $this->payment_submethods[ $payment_submethod ] ) ) {
 			
-			if ( $log ) {
+			if ( $options['log'] ) {
 				$this->log( 'Getting payment submethod: ' . ( string ) $payment_submethod );
 			}
 			
