@@ -13,6 +13,9 @@
  * 
  * @author khorn
  */
+
+require_once 'DataValidator.php';
+ 
 class DonationData {
 
 	protected $normalized = array( );
@@ -38,6 +41,19 @@ class DonationData {
 		$this->populateData( $test, $data );
 	}
 
+	function getRequestVal($key)
+	{
+	}
+
+	function getText($key)
+	{
+		//TODO
+	}
+
+	function getHeader($key)
+	{
+	}
+
 	/**
 	 * populateData, called on construct, pulls donation data from various 
 	 * sources. Once the data has been pulled, it will handle any session data 
@@ -52,7 +68,6 @@ class DonationData {
 	 * Default is false. 
 	 */
 	protected function populateData( $test = false, $external_data = false ) {
-		global $wgRequest;
 		$this->normalized = array( );
 		if ( is_array( $external_data ) ){
 			$this->normalized = $external_data;
@@ -60,85 +75,85 @@ class DonationData {
 			$this->populateData_Test();
 		} else {
 			$this->normalized = array(
-				'amount' => $wgRequest->getText( 'amount', null ),
-				'amountGiven' => $wgRequest->getText( 'amountGiven', null ),
-				'amountOther' => $wgRequest->getText( 'amountOther', null ),
-				'email' => $wgRequest->getText( 'emailAdd' ),
-				'fname' => $wgRequest->getText( 'fname' ),
-				'mname' => $wgRequest->getText( 'mname' ),
-				'lname' => $wgRequest->getText( 'lname' ),
-				'street' => $wgRequest->getText( 'street' ),
-				'street_supplemental' => $wgRequest->getText( 'street_supplemental' ),
-				'city' => $wgRequest->getText( 'city' ),
-				'state' => $wgRequest->getText( 'state' ),
-				'zip' => $wgRequest->getText( 'zip' ),
-				'country' => $wgRequest->getText( 'country' ),
-				'fname2' => $wgRequest->getText( 'fname' ),
-				'lname2' => $wgRequest->getText( 'lname' ),
-				'street2' => $wgRequest->getText( 'street' ),
-				'city2' => $wgRequest->getText( 'city' ),
-				'state2' => $wgRequest->getText( 'state' ),
-				'zip2' => $wgRequest->getText( 'zip' ),
+				'amount' => $this->getText( 'amount', null ),
+				'amountGiven' => $this->getText( 'amountGiven', null ),
+				'amountOther' => $this->getText( 'amountOther', null ),
+				'email' => $this->getText( 'emailAdd' ),
+				'fname' => $this->getText( 'fname' ),
+				'mname' => $this->getText( 'mname' ),
+				'lname' => $this->getText( 'lname' ),
+				'street' => $this->getText( 'street' ),
+				'street_supplemental' => $this->getText( 'street_supplemental' ),
+				'city' => $this->getText( 'city' ),
+				'state' => $this->getText( 'state' ),
+				'zip' => $this->getText( 'zip' ),
+				'country' => $this->getText( 'country' ),
+				'fname2' => $this->getText( 'fname' ),
+				'lname2' => $this->getText( 'lname' ),
+				'street2' => $this->getText( 'street' ),
+				'city2' => $this->getText( 'city' ),
+				'state2' => $this->getText( 'state' ),
+				'zip2' => $this->getText( 'zip' ),
 				/**
 				 * For legacy reasons, we might get a 0-length string passed into the form for country2.  If this happens, we need to set country2
 				 * to be 'country' for downstream processing (until we fully support passing in two separate addresses).  I thought about completely
 				 * disabling country2 support in the forms, etc but realized there's a chance it'll be resurrected shortly.  Hence this silly hack.
 				 */
-				'country2' => ( strlen( $wgRequest->getText( 'country2' ) ) ) ? $wgRequest->getText( 'country2' ) : $wgRequest->getText( 'country' ),
-				'size' => $wgRequest->getText( 'size' ),
-				'premium_language' => $wgRequest->getText( 'premium_language', null ),
-				'card_num' => str_replace( ' ', '', $wgRequest->getText( 'card_num' ) ),
-				'card_type' => $wgRequest->getText( 'card_type' ),
-				'expiration' => $wgRequest->getText( 'mos' ) . substr( $wgRequest->getText( 'year' ), 2, 2 ),
-				'cvv' => $wgRequest->getText( 'cvv' ),
+				'country2' => ( strlen( $this->getText( 'country2' ) ) ) ? $this->getText( 'country2' ) : $this->getText( 'country' ),
+				'size' => $this->getText( 'size' ),
+				'premium_language' => $this->getText( 'premium_language', null ),
+				'card_num' => str_replace( ' ', '', $this->getText( 'card_num' ) ),
+				'card_type' => $this->getText( 'card_type' ),
+				'expiration' => $this->getText( 'mos' ) . substr( $this->getText( 'year' ), 2, 2 ),
+				'cvv' => $this->getText( 'cvv' ),
 				//Leave both of the currencies here, in case something external didn't get the memo.
-				'currency' => $wgRequest->getVal( 'currency' ),
-				'currency_code' => $wgRequest->getVal( 'currency_code' ),
-				'payment_method' => $wgRequest->getText( 'payment_method', 'cc' ),
-				'payment_submethod' => $wgRequest->getText( 'payment_submethod', null ), // Used by GlobalCollect for payment types
-				'issuer_id' => $wgRequest->getText( 'issuer_id' ),
-				'order_id' => $wgRequest->getText( 'order_id', null ), //as far as I know, this won't actually ever pull anything back.
-				'i_order_id' => $wgRequest->getText( 'i_order_id', null ), //internal id for each contribution attempt
-				'numAttempt' => $wgRequest->getVal( 'numAttempt', '0' ),
-				'referrer' => ( $wgRequest->getVal( 'referrer' ) ) ? $wgRequest->getVal( 'referrer' ) : $wgRequest->getHeader( 'referer' ),
-				'utm_source' => $wgRequest->getText( 'utm_source' ),
-				'utm_source_id' => $wgRequest->getVal( 'utm_source_id', null ),
-				'utm_medium' => $wgRequest->getText( 'utm_medium' ),
-				'utm_campaign' => $wgRequest->getText( 'utm_campaign' ),
-				'utm_key' => $wgRequest->getText( 'utm_key' ),
+				'currency' => $this->getRequestVal( 'currency' ),
+				'currency_code' => $this->getRequestVal( 'currency_code' ),
+				'payment_method' => $this->getText( 'payment_method', 'cc' ),
+				'payment_submethod' => $this->getText( 'payment_submethod', null ), // Used by GlobalCollect for payment types
+				'issuer_id' => $this->getText( 'issuer_id' ),
+				'order_id' => $this->getText( 'order_id', null ), //as far as I know, this won't actually ever pull anything back.
+				'i_order_id' => $this->getText( 'i_order_id', null ), //internal id for each contribution attempt
+				'numAttempt' => $this->getRequestVal( 'numAttempt', '0' ),
+				'referrer' => ( $this->getRequestVal( 'referrer' ) ) ? $this->getRequestVal( 'referrer' ) : $this->getHeader( 'referer' ),
+				'utm_source' => $this->getText( 'utm_source' ),
+				'utm_source_id' => $this->getRequestVal( 'utm_source_id', null ),
+				'utm_medium' => $this->getText( 'utm_medium' ),
+				'utm_campaign' => $this->getText( 'utm_campaign' ),
+				'utm_key' => $this->getText( 'utm_key' ),
 				// Pull both of these here. We can logic out which one to use in the normalize bits. 
-				'language' => $wgRequest->getText( 'language', null ),
-				'uselang' => $wgRequest->getText( 'uselang', null ),
-				'comment-option' => $wgRequest->getText( 'comment-option' ),
-				'comment' => $wgRequest->getText( 'comment' ),
-				'email-opt' => $wgRequest->getText( 'email-opt' ),
+				'language' => $this->getText( 'language', null ),
+				'uselang' => $this->getText( 'uselang', null ),
+				'comment-option' => $this->getText( 'comment-option' ),
+				'comment' => $this->getText( 'comment' ),
+				'email-opt' => $this->getText( 'email-opt' ),
 				// test_string has been disabled - may no longer be needed.
-				//'test_string' => $wgRequest->getText( 'process' ), // for showing payflow string during testing
-				'_cache_' => $wgRequest->getText( '_cache_', null ),
-				'token' => $wgRequest->getText( 'token', null ),
-				'contribution_tracking_id' => $wgRequest->getText( 'contribution_tracking_id' ),
-				'data_hash' => $wgRequest->getText( 'data_hash' ),
-				'action' => $wgRequest->getText( 'action' ),
-				'gateway' => $wgRequest->getText( 'gateway' ), //likely to be reset shortly by setGateway();
-				'owa_session' => $wgRequest->getText( 'owa_session', null ),
-				'owa_ref' => $wgRequest->getText( 'owa_ref', null ),
-				'descriptor' => $wgRequest->getText( 'descriptor', null ),
+				//'test_string' => $this->getText( 'process' ), // for showing payflow string during testing
+				'_cache_' => $this->getText( '_cache_', null ),
+				'token' => $this->getText( 'token', null ),
+				'contribution_tracking_id' => $this->getText( 'contribution_tracking_id' ),
+				'data_hash' => $this->getText( 'data_hash' ),
+				'action' => $this->getText( 'action' ),
+				'gateway' => $this->getText( 'gateway' ), //likely to be reset shortly by setGateway();
+				'owa_session' => $this->getText( 'owa_session', null ),
+				'owa_ref' => $this->getText( 'owa_ref', null ),
+				'descriptor' => $this->getText( 'descriptor', null ),
 
-				'account_name' => $wgRequest->getText( 'account_name', null ),
-				'account_number' => $wgRequest->getText( 'account_number', null ),
-				'authorization_id' => $wgRequest->getText( 'authorization_id', null ),
-				'bank_check_digit' => $wgRequest->getText( 'bank_check_digit', null ),
-				'bank_name' => $wgRequest->getText( 'bank_name', null ),
-				'bank_code' => $wgRequest->getText( 'bank_code', null ),
-				'branch_code' => $wgRequest->getText( 'branch_code', null ),
-				'country_code_bank' => $wgRequest->getText( 'country_code_bank', null ),
-				'date_collect' => $wgRequest->getText( 'date_collect', null ),
-				'direct_debit_text' => $wgRequest->getText( 'direct_debit_text', null ),
-				'iban' => $wgRequest->getText( 'iban', null ),
-				'transaction_type' => $wgRequest->getText( 'transaction_type', null ),
-				'form_name' => $wgRequest->getText( 'form_name', null ),
-				'ffname' => $wgRequest->getText( 'ffname', null ),
-				'recurring' => $wgRequest->getVal( 'recurring', null ), //boolean type
+				'account_name' => $this->getText( 'account_name', null ),
+				'account_number' => $this->getText( 'account_number', null ),
+				'authorization_id' => $this->getText( 'authorization_id', null ),
+				'bank_check_digit' => $this->getText( 'bank_check_digit', null ),
+				'bank_name' => $this->getText( 'bank_name', null ),
+				'bank_code' => $this->getText( 'bank_code', null ),
+				'branch_code' => $this->getText( 'branch_code', null ),
+				'country_code_bank' => $this->getText( 'country_code_bank', null ),
+				'date_collect' => $this->getText( 'date_collect', null ),
+				'direct_debit_text' => $this->getText( 'direct_debit_text', null ),
+				'iban' => $this->getText( 'iban', null ),
+				'transaction_type' => $this->getText( 'transaction_type', null ),
+				'form_name' => $this->getText( 'form_name', null ),
+				'ffname' => $this->getText( 'ffname', null ),
+				'recurring' => $this->getRequestVal( 'recurring', null ), //boolean type
 				'user_ip' => null, //placeholder. We'll make these in a minute.
 				'server_ip' => null,
 			);
@@ -418,9 +433,7 @@ class DonationData {
 		//already be populated with something un-local, and we'd want to keep 
 		//that.
 		if ( !$this->isSomething( 'user_ip' ) || $this->getVal( 'user_ip' ) === '127.0.0.1' ){
-			if ( function_exists( 'wfGetIP' ) ){
-				$this->setVal( 'user_ip', wfGetIP() );
-			}
+			$this->setVal( 'user_ip', WMF_Framework::get_ip() );
 		}
 		
 		if ( array_key_exists( 'SERVER_ADDR', $_SERVER ) ){
@@ -464,6 +477,7 @@ class DonationData {
 		
 		if ( !class_exists( $class_name ) ) {
 
+			$class_name_orig = $class_name;
 			/*
 			 * If $class_name is not the default form, then check to see if the
 			 * default form is available.
@@ -473,16 +487,13 @@ class DonationData {
 				$log_message = '"' . $class_name . '"';
 				$this->log( '"Form class not found" ' . $log_message , LOG_INFO );
 
-				$class_name_orig = $class_name;
 				$class_name = "Gateway_Form_" . $this->getGatewayGlobal( 'DefaultForm' );
 			}
 
 			if ( class_exists( $class_name ) ) {
 				$this->setVal( 'form_name', $this->getGatewayGlobal( 'DefaultForm' ) );
 			} else {
-
-				$log_message = '"Could not find form [ ' . $class_name_orig . ' ], nor default form [ ' . $class_name . ' ]"';
-				$this->log( '"Form class not found" ' . $log_message , LOG_INFO );
+				throw new WmfPaymentAdapterException( 'Could not find form ' . $class_name_orig . ', nor default form ' . $class_name );
 
 				// Unset class name
 				$class_name = null;
@@ -513,13 +524,12 @@ class DonationData {
 	 * lookup.
 	 */
 	protected function setCountry() {
-		global $wgRequest;
 		if ( !$this->isSomething('country') ){
 			// If no country was passed, try to do GeoIP lookup
 			// Requires php5-geoip package
 			if ( function_exists( 'geoip_country_code_by_name' ) ) {
 				$ip = $this->getVal( 'user_ip' );
-				if ( IP::isValid( $ip ) ) {
+				if ( WMF_Framework::is_valid_ip( $ip ) ) {
 					$country = geoip_country_code_by_name( $ip );
 					$this->setVal('country', $country);
 				}
@@ -534,8 +544,6 @@ class DonationData {
 	 * 'currency_code'. After this fires, we will only have 'currency_code'. 
 	 */
 	protected function setCurrencyCode() {
-		global $wgRequest;
-		
 		//at this point, we can have either currency, or currency_code. 
 		//-->>currency_code has the authority!<<-- 
 		$currency = false;
@@ -734,7 +742,6 @@ class DonationData {
 	 * already set coming in (had been defaulting to english). 
 	 */
 	protected function setLanguage() {
-		global $wgLang;
 		$language = false;
 		
 		if ( $this->isSomething( 'uselang' ) ) {
@@ -744,9 +751,9 @@ class DonationData {
 		}
 		
 		if ( $language == false
-			|| !Language::isValidBuiltInCode( $this->normalized['language'] ) )
+			|| !WMF_Framework::is_valid_builtin_language_code( $this->normalized['language'] ) )
 		{
-			$language = $wgLang->getCode() ;
+			$language = WMF_Framework::get_language_code() ;
 		}
 		
 		$this->setVal( 'language', $language );
@@ -776,12 +783,11 @@ class DonationData {
 			$this->setVal( 'token', 'cache' );
 
 			// if we have squid caching enabled, set the maxage
-			global $wgUseSquid, $wgOut;
 			$maxAge = $this->getGatewayGlobal( 'SMaxAge' );
 			
-			if ( $wgUseSquid && ( $maxAge !== false ) ) {
+			if ( WMF_Framework::is_squid() && ( $maxAge !== false ) ) {
 				self::log( $this->getAnnoyingOrderIDLogLinePrefix() . ' Setting s-max-age: ' . $maxAge, LOG_DEBUG );
-				$wgOut->setSquidMaxage( $maxAge );
+				WMF_Framework::set_squid_maxage( $maxAge );
 			}
 		}
 	}
@@ -893,7 +899,7 @@ class DonationData {
 		// fetch a salted version of the session token
 		$sessionSaltedToken = $this->token_getSaltedSessionToken();
 		if ( $val != $sessionSaltedToken ) {
-			wfDebug( "DonationData::matchEditToken: broken session data\n" );
+			WMF_Framework::log( "DonationData::matchEditToken: broken session data\n" );
 			//and reset the token for next time. 
 			$this->token_refreshAllTokenEverything();
 		}
@@ -916,7 +922,7 @@ class DonationData {
 			return;
 
 		// otherwise, fire it up using global mw function wfSetupSession
-		wfSetupSession();
+		WMF_Framework::setup_session();
 	}
 	
 	/**
@@ -942,7 +948,6 @@ class DonationData {
 	 * @return type 
 	 */
 	public function token_checkTokens() {
-		global $wgRequest;
 		static $match = null; //because we only want to do this once per load.
 
 		if ( $match === null ) {
@@ -969,7 +974,7 @@ class DonationData {
 			$token_check = $this->getVal( 'token' );
 			
 			$match = $this->token_matchEditToken( $token_check );
-			if ( $wgRequest->wasPosted() ) {
+			if ( $this->wasPosted() ) {
 				$this->log( $this->getAnnoyingOrderIDLogLinePrefix() . ' Submitted edit token: ' . $this->getVal( 'token' ), LOG_DEBUG );
 				$this->log( $this->getAnnoyingOrderIDLogLinePrefix() . ' Token match: ' . ($match ? 'true' : 'false' ), LOG_DEBUG );
 			}
@@ -1118,6 +1123,8 @@ class DonationData {
 	 * @return mixed Contribution tracking ID or false on failure
 	 */
 	public static function insertContributionTracking( $tracking_data ) {
+		//XXX
+		/*
 		$db = ContributionTrackingProcessor::contributionTrackingConnection();
 
 		if ( !$db ) {
@@ -1135,6 +1142,7 @@ class DonationData {
 		} else {
 			return false;
 		}
+		*/
 	}
 
 	/**
@@ -1144,6 +1152,8 @@ class DonationData {
 	 * @param bool $force If set to true, will ensure that contribution tracking is updated
 	 */
 	public function updateContributionTracking( $force = false ) {
+		//XXX
+		/*
 		// ony update contrib tracking if we're coming from a single-step landing page
 		// which we know with cc# in utm_source or if force=true or if contribution_tracking_id is not set
 		if ( !$force &&
@@ -1162,6 +1172,7 @@ class DonationData {
 			$tracked_contribution = $this->getCleanTrackingData( true );
 			$db->update( 'contribution_tracking', $tracked_contribution, array( 'id' => $this->getVal( 'contribution_tracking_id' ) ) );
 		}
+		*/
 	}
 
 	/**
@@ -1349,10 +1360,9 @@ class DonationData {
 	 * @staticvar string $posted Keeps track so we don't have to figure it out twice. 
 	 */
 	public function wasPosted(){
-		global $wgRequest;
 		static $posted = null;
 		if ($posted === null){
-			$posted = (array_key_exists('REQUEST_METHOD', $_SERVER) && $wgRequest->wasPosted());
+			$posted = (array_key_exists('REQUEST_METHOD', $_SERVER) && WMF_Framework::was_posted());
 		}
 		return $posted; 
 	}

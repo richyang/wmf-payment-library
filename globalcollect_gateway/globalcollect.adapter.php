@@ -328,9 +328,10 @@ class GlobalCollectAdapter extends GatewayAdapter {
 		$this->postdatadefaults['attempt_id'] = '1';
 		$this->postdatadefaults['effort_id'] = '1';
 
-		$returnTitle = isset($options['returnTitle']) ? $options['returnTitle'] : Title::newFromText( 'Special:GlobalCollectGatewayResult' );
-		$returnTo = isset($options['returnTo']) ? $options['returnTo'] : $returnTitle->getFullURL();
-		$this->postdatadefaults['returnto'] = $returnTo;
+		//XXX Return url should be set by calling code anyway.
+		//$returnTitle = isset($options['returnTitle']) ? $options['returnTitle'] : Title::newFromText( 'Special:GlobalCollectGatewayResult' );
+		//$returnTo = isset($options['returnTo']) ? $options['returnTo'] : $returnTitle->getFullURL();
+		//$this->postdatadefaults['returnto'] = $returnTo;
 	}
 
 	/**
@@ -1016,7 +1017,7 @@ class GlobalCollectAdapter extends GatewayAdapter {
 		}
 		else {
 			$message = 'The payment method [ ' . $payment_method . ' ] was not found.';
-			throw new Exception( $message );
+			throw new WmfPaymentAdapterException( $message );
 		}
 	}
 	
@@ -1049,7 +1050,7 @@ class GlobalCollectAdapter extends GatewayAdapter {
 		}
 		else {
 			$message = 'The payment submethod [ ' . $payment_submethod . ' ] was not found.';
-			throw new Exception( $message );
+			throw new WmfPaymentAdapterException( $message );
 		}
 	}
 	
@@ -1531,7 +1532,7 @@ class GlobalCollectAdapter extends GatewayAdapter {
 				
 				$message = 'Unknown check result: (' . $checkResult . ')';
 				
-				throw new MWException( $message );
+				throw new WmfPaymentAdapterException( $message );
 			}
 		}
 		
@@ -2131,7 +2132,8 @@ class GlobalCollectAdapter extends GatewayAdapter {
 			} else {
 				
 				// Do we want to set this here?
-				$this->staged_data['returnto'] = $this->getThankYouPage();
+				//XXX no.
+				//$this->staged_data['returnto'] = $this->getThankYouPage();
 			}
 		}
 	}

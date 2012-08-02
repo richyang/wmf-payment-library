@@ -94,16 +94,7 @@ class GlobalCollectOrphanAdapter extends GlobalCollectAdapter {
 	public static function log( $msg, $log_level = LOG_INFO, $nothing = null ) {
 		$identifier = 'orphans:' . self::getIdentifier() . "_gateway_trxn";
 
-		// if we're not using the syslog facility, use wfDebugLog
-		if ( !self::getGlobal( 'UseSyslog' ) ) {
-			wfDebugLog( $identifier, $msg );
-			return;
-		}
-
-		// otherwise, use syslogging
-		openlog( $identifier, LOG_ODELAY, LOG_SYSLOG );
-		syslog( $log_level, $msg );
-		closelog();
+                WMF_Framework::log("{$identifier}: {$msg}");
 	}
 
 	public function getUTMInfoFromDB() {
