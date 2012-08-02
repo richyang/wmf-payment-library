@@ -1252,7 +1252,8 @@ class GlobalCollectAdapter extends GatewayAdapter {
 			//As it happens, we can't remove things from the queue here: It 
 			//takes way too dang long. (~5 seconds!)
 			//So, instead, I'll add an anti-message and deal with it later. (~.01 seconds) 
-			$this->doLimboStompTransaction( true );
+			//XXX
+			//$this->doLimboStompTransaction( true );
 		}
 		
 		if ( $problemflag ){
@@ -2155,7 +2156,8 @@ class GlobalCollectAdapter extends GatewayAdapter {
 			$data = $this->getTransactionData();
 			$action = $this->findCodeAction( 'GET_ORDERSTATUS', 'STATUSID', $data['STATUSID'] );
 			if ($action != 'failed'){
-				$this->doLimboStompTransaction();
+				//XXX
+				//$this->doLimboStompTransaction();
 			}
 		}
 	}

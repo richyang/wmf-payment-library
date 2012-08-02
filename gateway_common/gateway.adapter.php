@@ -1991,17 +1991,10 @@ abstract class GatewayAdapter implements GatewayType {
 		}
 	}
 
-	/**
-	 * Runs all the post-process hooks that have been enabled and configured in 
-	 * donationdata.php and/or LocalSettings.php, including the ActiveMQ/Stomp 
-	 * hooks. 
-	 * This function is most likely to be called through 
-	 * executeFunctionIfExists, later on in do_transaction. 
-	 */
 	protected function runPostProcessHooks() {
-		// expose a hook for any post processing
 		self::runHooks( 'GatewayPostProcess', array( &$this ) );
-		$this->doStompTransaction();
+		//XXX existing code will need to add a stomp postproc hook
+		//- $this->doStompTransaction();
 	}
 
 	/**
