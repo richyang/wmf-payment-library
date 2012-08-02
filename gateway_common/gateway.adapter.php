@@ -241,24 +241,9 @@ abstract class GatewayAdapter implements GatewayType {
 			}
 		}
 		
-		$this->dataObj = new DonationData( self::getGatewayAdapterClass(), self::getGlobal( 'Test' ), $options['external_data'] );
-
 		$this->setPostDefaults( $options['postDefaults'] );
-		
-		$this->unstaged_data = $this->dataObj->getDataEscaped();
-		$this->staged_data = $this->unstaged_data;
-		
-		//If we ever put numAttempt in the session, we'll probably want to re-examine which form value we want to use here. 
-		$this->posted = ( $this->dataObj->wasPosted() && $this->getNumAttempt() );
 
-		$this->defineTransactions();
-		$this->defineErrorMap();
-		$this->defineVarMap();
-		$this->defineDataConstraints();
-		$this->defineAccountInfo();
-		$this->defineReturnValueMap();
-
-		$this->stageData();
+		$this->load_request_data($options['external_data']);
 	}
 	
 	function getNumAttempt()
@@ -840,7 +825,7 @@ abstract class GatewayAdapter implements GatewayType {
 		//reset, in case this isn't our first time. 
 		$this->transaction_results = array();
 		$this->setValidationAction('process', true); 
-				
+
 		try {
 			$this->setCurrentTransaction( $transaction );
 
@@ -994,6 +979,26 @@ abstract class GatewayAdapter implements GatewayType {
 
 		return $this->getTransactionAllResults();
 		
+	}
+
+	function load_request_data($data)
+	{
+		$this->dataObj = new DonationData( self::getGatewayAdapterClass(), self::getGlobal( 'Test' ), $data );
+		
+		$this->unstaged_data = $this->dataObj->getDataEscaped();
+		$this->staged_data = $this->unstaged_data;
+		
+		//If we ever put numAttempt in the session, we'll probably want to re-examine which form value we want to use here. 
+		$this->posted = ( $this->dataObj->wasPosted() && $this->getNumAttempt() );
+
+		$this->defineTransactions();
+		$this->defineErrorMap();
+		$this->defineVarMap();
+		$this->defineDataConstraints();
+		$this->defineAccountInfo();
+		$this->defineReturnValueMap();
+
+		$this->stageData();
 	}
 
 	function getCurlBaseOpts() {
