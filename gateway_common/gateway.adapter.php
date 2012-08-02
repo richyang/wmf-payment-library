@@ -194,6 +194,14 @@ abstract class GatewayAdapter implements GatewayType {
 	const COMMUNICATION_TYPE = 'xml'; //this needs to be either 'xml' or 'namevalue'
 	const GLOBAL_PREFIX = 'wgDonationGateway'; //...for example. 
 
+	protected $valid_statuses = array(
+		'complete', 
+		'pending', 
+		'pending-poke', 
+		'failed', 
+		'revised',
+	);
+
 	/**
 	 * Get @see GlobalCollectAdapter::$goToThankYouOn
 	 *
@@ -929,7 +937,7 @@ abstract class GatewayAdapter implements GatewayType {
 					if ( $txn_ok === false ) {
 						$stopflag = false;
 					} else {
-						if ( !in_array( $this->getTransactionWMFStatus(), $statuses ) ) {
+						if ( !$this->validTransactionWMFStatus() ) {
 							$stopflag = false;
 						}
 					}
@@ -1380,17 +1388,7 @@ abstract class GatewayAdapter implements GatewayType {
 	 * code range. If omitted, it will make a range of one value: The lower bound.
 	 */
 	protected function addCodeRange( $transaction, $key, $action, $lower, $upper = null ) {
-		//our choices here are: 
-		//TODO: Move this somewhere both this function and 
-		//setTransactionWMFStatus can get to it. 
-		$statuses = array(
-			'complete', 
-			'pending', 
-			'pending-poke', 
-			'failed', 
-			'revised'
-		);
-		if ( !in_array( $action, $statuses ) ) {
+		if ( !$this->validTransactionWMFStatus() ) {
 			throw new MWException( "Transaction WMF Status $action is invalid." );
 		}
 		if ( $upper === null ) {
@@ -1803,6 +1801,13 @@ abstract class GatewayAdapter implements GatewayType {
 		}
 	}
 
+	public function validTransactionWMFStatus( $status = null ) {
+		if ( $status == null ) {
+			$status = $this->getTransactionWMFStatus();
+		}
+		return in_array( $statuses, $this->valid_statuses );
+	}
+
 	/**
 	 * Sets the WMF Transaction Status. This is the one we care about for 
 	 * switching on behavior. 
@@ -1815,15 +1820,7 @@ abstract class GatewayAdapter implements GatewayType {
 	 * 'failed', 'revised'
 	 */
 	public function setTransactionWMFStatus( $status ) {
-		//our choices here are: 
-		$statuses = array(
-			'complete', 
-			'pending', 
-			'pending-poke', 
-			'failed', 
-			'revised'
-		);
-		if ( !in_array( $status, $statuses ) ) {
+		if ( !$this->validTransactionWMFStatus() ) {
 			throw new MWException( "Transaction WMF Status $status is invalid." );
 		}
 		
