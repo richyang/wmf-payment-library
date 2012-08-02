@@ -264,7 +264,6 @@ abstract class GatewayAdapter implements GatewayType {
 			'currency_code' => 'USD',
 			'language' => 'en',
 			'country' => 'US',
-			'card_type' => 'visa',
 		);
 	}
 

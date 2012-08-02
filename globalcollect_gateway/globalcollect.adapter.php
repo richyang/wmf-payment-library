@@ -16,10 +16,8 @@
  *
  */
 
-/**
- * GlobalCollectAdapter
- *
- */
+require_once 'gateway.adapter.php';
+
 class GlobalCollectAdapter extends GatewayAdapter {
 	const GATEWAY_NAME = 'Global Collect';
 	const IDENTIFIER = 'globalcollect';
@@ -181,8 +179,8 @@ class GlobalCollectAdapter extends GatewayAdapter {
 			//'LANGUAGECODE'		=> 'language'				AN2
 			'language'				=> array( 'type' => 'alphanumeric',		'length' => 2, ),
 			
-			//'MERCHANTREFERENCE'	=> 'order_id'				AN50
-			'order_id'				=> array( 'type' => 'alphanumeric',		'length' => 50, ),
+			//'MERCHANTREFERENCE'	=> 'order_id'				AN30
+			'order_id'				=> array( 'type' => 'alphanumeric',		'length' => 30, ),
 			
 			//'ORDERID'				=> 'order_id'				N10
 			'order_id'				=> array( 'type' => 'numeric',			'length' => 10, ),
@@ -519,6 +517,7 @@ class GlobalCollectAdapter extends GatewayAdapter {
 					'PARAMS' => array(
 						'ORDER' => array(
 							'ORDERID',
+							'EFFORTID',
 						),
 					)
 				)
@@ -581,6 +580,35 @@ class GlobalCollectAdapter extends GatewayAdapter {
 			'values' => array(
 				'ACTION' => 'SET_PAYMENT',
 				'VERSION' => '1.0'
+			),
+		);
+		
+		$this->transactions['DO_PAYMENT'] = array(
+			'request' => array(
+				'REQUEST' => array(
+					'ACTION',
+					'META' => array(
+						'MERCHANTID',
+						'IPADDRESS',
+						'VERSION'
+					),
+					'PARAMS' => array(
+						'PAYMENT' => array(
+							'MERCHANTREFERENCE',
+							'ORDERID',
+							'EFFORTID',
+							'PAYMENTPRODUCTID',
+							'AMOUNT',
+							'CURRENCYCODE',
+							'HOSTEDINDICATOR',
+						),
+					)
+				)
+			),
+			'values' => array(
+				'ACTION' => 'DO_PAYMENT',
+				'VERSION' => '1.0',
+				'HOSTEDINDICATOR' => '0',
 			),
 		);
 	}
@@ -1088,9 +1116,29 @@ class GlobalCollectAdapter extends GatewayAdapter {
 				$result = $this->transactionDirect_Debit();
 				$this->saveCommunicationStats( 'Direct_Debit', $transaction );
 				return $result;
+			case 'Recurring_Charge' :
+				return $this->transactionRecurring_Charge();
 			default:
 				return parent::do_transaction( $transaction );
 		}
+	}
+
+	/**
+	 * Process a subsequent (effort_id > 1) charge.
+	 */
+	protected function transactionRecurring_Charge()
+	{
+		$result = $this->do_transaction('DO_PAYMENT');
+		if ($result['status'])
+		{
+			$result = $this->do_transaction('GET_ORDERSTATUS');
+			if ($result['status'] && $this->getTransactionWMFStatus() == 'pending')
+			{
+				$this->transactions['SET_PAYMENT']['values']['PAYMENTPRODUCTID'] = $result['data']['PAYMENTPRODUCTID'];
+				$result = $this->do_transaction('SET_PAYMENT');
+			}
+		}
+		return $result;
 	}
 	
 	
@@ -1414,6 +1462,13 @@ class GlobalCollectAdapter extends GatewayAdapter {
 
 				break;
 			case 'GET_ORDERSTATUS':
+				$data = $this->xmlChildrenToArray( $response, 'STATUS' );
+				if (isset($data['STATUSID'])){
+					$this->setTransactionWMFStatus( $this->findCodeAction( 'GET_ORDERSTATUS', 'STATUSID', $data['STATUSID'] ) );
+				}
+				$data['ORDER'] = $this->xmlChildrenToArray( $response, 'ORDER' );
+				break;
+			case 'DO_PAYMENT':
 				$data = $this->xmlChildrenToArray( $response, 'STATUS' );
 				if (isset($data['STATUSID'])){
 					$this->setTransactionWMFStatus( $this->findCodeAction( 'GET_ORDERSTATUS', 'STATUSID', $data['STATUSID'] ) );

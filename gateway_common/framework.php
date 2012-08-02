@@ -163,4 +163,8 @@ class WMF_Framework
 	static function user_agent()
 	{
 	}
+
+	static function was_posted()
+	{
+	}
 }
